@@ -1,65 +1,82 @@
-const { app } = require("./app.js");
-const cron = require("node-cron");
-const xlsx = require("xlsx");
+import app from "./app.js";
+import * as cron from "node-cron";
+import { calculateBagsInventory } from "./bags-inventory.js";
+import { calculateBoxesInventory } from "./boxes-inventory.js";
+import { calculateFlavorsInventory } from "./flavors-inventory.js";
 
-cron.schedule("*/5 * * * * *", async () => {
+cron.schedule("*/60 * * * * *", async () => {
   try {
-    const flavorsWorkbook = await xlsx.readFile("./flavors.xlsm");
-    const flavorsWorksheet = flavorsWorkbook.Sheets["Inventory Test"];
+    const { bagsMessage, bagsQuantityMessage } = await calculateBagsInventory();
+    const { boxesMessage, boxesQuantityMessage } =
+      await calculateBoxesInventory();
+    const { flavorsMessage, flavorsQuantityRemaining } =
+      await calculateFlavorsInventory();
 
-    const flavorsData = xlsx.utils.sheet_to_json(flavorsWorksheet);
-    const flavors = flavorsData.slice(1);
-
-    const flavorsToReorder = [];
-    const gallonsRemaining = [];
-
-    let flavorsMessage, gallonsMessage;
-
-    for (const flavor of flavors) {
-      if (flavor["__EMPTY_11"] === "ORDENAR") {
-        flavorsToReorder.push(flavor["__EMPTY"]);
-        gallonsRemaining.push(flavor["__EMPTY_5"]);
-      }
-    }
-
-    if (!flavorsToReorder.length) return;
-
-    flavorsMessage = flavorsToReorder.join("\n");
-    const finalGals = gallonsRemaining.map((q) => q.toString() + " gallons");
-    gallonsMessage = finalGals.join("\n");
-
-    try {
-      await app.client.chat.postMessage({
-        channel: "C04GSTQ463A",
-        blocks: [
-          {
-            type: "section",
-            text: {
+    await app.client.chat.postMessage({
+      text: "There are low-stock products in our inventory.  Check out the LooseLeaf Dominicana inventory documents in OneDrive.",
+      channel: "C04GSTQ463A",
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: " ⚠️ *Warning!* ⚠️\n  Our inventory is running low for the following items:",
+          },
+        },
+        {
+          type: "section",
+          fields: [
+            {
               type: "mrkdwn",
-              text: " ⚠️ *Warning!* ⚠️\n  Our inventory is running low for the following items:",
+              text: `*Flavors:*\n${flavorsMessage}`,
             },
-          },
-          {
-            type: "section",
-            fields: [
-              {
-                type: "mrkdwn",
-                text: `*SKU(s):*\n${flavorsMessage}`,
-              },
-              {
-                type: "mrkdwn",
-                text: `*Remaining Quantity:*\n${gallonsMessage}`,
-              },
-            ],
-          },
-        ],
-      });
-
-      console.log(result);
-    } catch (err) {
-      console.log(err);
-    }
+            {
+              type: "mrkdwn",
+              text: `*Remaining Quantity:*\n${flavorsQuantityRemaining}`,
+            },
+          ],
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*Boxes:*\n${boxesMessage}`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Remaining Quantity:*\n${boxesQuantityMessage}`,
+            },
+          ],
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*Bags:*\n${bagsMessage}`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Remaining Quantity:*\n${bagsQuantityMessage}`,
+            },
+          ],
+        },
+      ],
+    });
   } catch (err) {
-    console.log(err);
+    app.client.chat.postMessage({
+      text: "Error!  Something is wrong with the LooseLeaf Procurement Bot.",
+      channel: "C04GSTQ463A",
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: " 🚨 *Error!* 🚨\n  Something is wrong with the LooseLeaf Procurement Bot.",
+          },
+        },
+      ],
+    });
   }
 });
