@@ -2,9 +2,7 @@ import pkg from "xlsx";
 const { readFile, utils } = pkg;
 
 export async function calculateFlavorsInventory() {
-  const flavorsWorkbook = await readFile(
-    "./downloaded-inventory/Inventory/Flavors.xlsm"
-  );
+  const flavorsWorkbook = await readFile("./downloaded-inventory/Flavors.xlsm");
 
   const flavorsWorksheet = flavorsWorkbook.Sheets["Inventory"];
   const flavorsData = utils.sheet_to_json(flavorsWorksheet);
@@ -17,7 +15,7 @@ export async function calculateFlavorsInventory() {
   let flavorsMessage, flavorsQuantityRemaining;
 
   for (const product of productList) {
-    if (product["__EMPTY_12"] === "ORDENAR") {
+    if (product["__EMPTY_10"] === "ORDENAR") {
       flavorsToReorder.push(product["__EMPTY"]);
       quantityRemaining.push(product["__EMPTY_4"]);
     }
@@ -26,7 +24,9 @@ export async function calculateFlavorsInventory() {
   if (!flavorsToReorder.length) return;
 
   flavorsMessage = flavorsToReorder.join("\n");
-  const finalFlavors = quantityRemaining.map((q) => q.toString() + " bags");
+  const finalFlavors = quantityRemaining.map(
+    (q) => q.toString() + " containers"
+  );
   flavorsQuantityRemaining = finalFlavors.join("\n");
 
   return { flavorsMessage, flavorsQuantityRemaining };
