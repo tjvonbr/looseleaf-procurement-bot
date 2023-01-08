@@ -4,7 +4,7 @@ import { calculateBagsInventory } from "./bags-inventory.js";
 import { calculateBoxesInventory } from "./boxes-inventory.js";
 import { calculateFlavorsInventory } from "./flavors-inventory.js";
 
-cron.schedule("*/60 * * * * *", async () => {
+cron.schedule("0 9 * * 5", async () => {
   try {
     const { bagsMessage, bagsQuantityMessage } = await calculateBagsInventory();
     const { boxesMessage, boxesQuantityMessage } =
