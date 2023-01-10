@@ -1,7 +1,10 @@
 {
   "name": "candyman",
   "version": "1.0.0",
-  "main": "index.js",
+  "engines": {
+    "node": "14.x"
+  },
+  "main": "app.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon app.js",
@@ -11,18 +14,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@microsoft/microsoft-graph-client": "^3.0.4",
     "@slack/bolt": "^3.12.2",
     "@slack/web-api": "^6.8.0",
-    "axios": "^1.2.1",
     "node-cron": "^3.0.2",
-    "node-sp-auth-config": "^3.0.5",
-    "sp-download": "^2.0.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "dotenv": "^16.0.3",
-    "node-sp-auth": "^3.0.7",
     "nodemon": "^2.0.20",
     "sppull": "^3.0.1"
   },
