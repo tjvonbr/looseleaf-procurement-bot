@@ -3,7 +3,7 @@ const { readFile, utils } = pkg;
 
 export async function calculateBagsInventory() {
   const bagsWorkbook = await readFile(
-    "./downloaded-inventory/Inventory/Bolsas de Empaque.xlsm"
+    "./downloaded-inventory/Bolsas de Empaque.xlsm"
   );
   const bagsWorksheet = bagsWorkbook.Sheets["Inventory"];
   const bagsData = utils.sheet_to_json(bagsWorksheet);
