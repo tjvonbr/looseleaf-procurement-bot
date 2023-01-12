@@ -28,7 +28,7 @@ const context = {
 };
 
 const options = {
-  spRootFolder: "Shared Documents",
+  spRootFolder: "Inventory",
   dlRootFolder: "./downloaded-inventory",
 };
 
@@ -37,12 +37,7 @@ fs.rmSync("./downloaded-inventory", { recursive: true, force: true });
 
 await SPPull.download(context, options)
   .then((downloadResults) => {
-    console.log(downloadResults);
     console.log("Files are downloaded");
-    console.log(
-      "For more, please check the results",
-      JSON.stringify(downloadResults)
-    );
   })
   .catch((err) => {
     console.log("Core error has happened", err);
