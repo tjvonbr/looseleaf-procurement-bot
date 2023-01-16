@@ -28,5 +28,5 @@ export async function calculateBagsInventory() {
   const finalBags = quantityRemaining.map((q) => q.toString() + " bags");
   bagsQuantityMessage = finalBags.join("\n");
 
-  return { bagsMessage, bagsQuantityMessage };
+  return { bagsToReorder, bagsMessage, bagsQuantityMessage };
 }

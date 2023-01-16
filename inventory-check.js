@@ -11,31 +11,139 @@ const client = asana.Client.create().useAccessToken(accessToken);
 const projectGid = "1203590834169226";
 const trevorsUserGid = process.env.ASANA_USER_GID;
 
-async function createAsanaProcurementTask() {
-  await client.tasks.createTask({
-    projects: [projectGid],
-    name: "Test Task from Trevor",
-    // To find the enum value gids, use Asana's API explorer
-    // https://developers.asana.com/explorer
-    custom_fields: {
-      1203611032261860: trevorsUserGid, // Assignee
-      1203571693339765: "1203571693339766", // Task Status
-      1203571888323022: "1203591692296514", // Payment Status
-    },
-  });
+async function createAsanaProcurementTask(flavors, bags, boxes) {
+  if (flavors.length > 0) {
+    try {
+      await client.tasks.createTask({
+        projects: [projectGid],
+        name: "Flavor Re-stock Test",
+        // To find the enum value gids, use Asana's API explorer
+        // https://developers.asana.com/explorer
+        custom_fields: {
+          1203611032261860: trevorsUserGid, // Assignee
+          1203571693339765: "1203571693339766", // Task Status
+          1203571888323022: "1203591692296514", // Payment Status
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
-  return;
+    if (bags.length > 0) {
+      try {
+        await client.tasks.createTask({
+          projects: [projectGid],
+          name: "Bags Re-stock Test",
+          // To find the enum value gids, use Asana's API explorer
+          // https://developers.asana.com/explorer
+          custom_fields: {
+            1203611032261860: trevorsUserGid, // Assignee
+            1203571693339765: "1203571693339766", // Task Status
+            1203571888323022: "1203591692296514", // Payment Status
+          },
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    if (boxes.length > 0) {
+      try {
+        await client.tasks.createTask({
+          projects: [projectGid],
+          name: "Box Re-stock Test",
+          // To find the enum value gids, use Asana's API explorer
+          // https://developers.asana.com/explorer
+          custom_fields: {
+            1203611032261860: trevorsUserGid, // Assignee
+            1203571693339765: "1203571693339766", // Task Status
+            1203571888323022: "1203591692296514", // Payment Status
+          },
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }
 }
 
 cron.schedule("*/30 * * * * *", async () => {
   // */30 * * * * *
   // 0 9 * * 5
   try {
-    const { bagsMessage, bagsQuantityMessage } = await calculateBagsInventory();
-    const { boxesMessage, boxesQuantityMessage } =
+    const { bagsToReorder, bagsMessage, bagsQuantityMessage } =
+      await calculateBagsInventory();
+    const { boxesToReorder, boxesMessage, boxesQuantityMessage } =
       await calculateBoxesInventory();
-    const { flavorsMessage, flavorsQuantityRemaining } =
+    const { flavorsToReorder, flavorsMessage, flavorsQuantityRemaining } =
       await calculateFlavorsInventory();
+
+    // --> Slack app listeners <--
+    app.action("create_task", async ({ ack, body }) => {
+      await ack();
+
+      await createAsanaProcurementTask(
+        flavorsToReorder,
+        bagsToReorder,
+        boxesToReorder
+      );
+
+      const responseBlocks = [...body.message.blocks];
+
+      const acknowledgementBlock = {
+        type: "section",
+        fields: [
+          {
+            type: "mrkdwn",
+            text: `*Status:*\nAsana task created ✅`,
+          },
+          {
+            type: "mrkdwn",
+            text: `*User:*\n<@${body.user.id}>`,
+          },
+        ],
+      };
+
+      responseBlocks.splice(-2);
+      responseBlocks.push(acknowledgementBlock);
+
+      await app.client.chat.update({
+        channel: body.channel.id,
+        ts: body.message.ts,
+        as_user: true,
+        blocks: responseBlocks,
+      });
+    });
+
+    app.action("ignore_alert", async ({ ack, body }) => {
+      await ack();
+
+      const responseBlocks = [...body.message.blocks];
+
+      const acknowledgementBlock = {
+        type: "section",
+        fields: [
+          {
+            type: "mrkdwn",
+            text: `*Status:*\nAlert acknowledged but no Asana task created ❌`,
+          },
+          {
+            type: "mrkdwn",
+            text: `*User:*\n<@${body.user.id}>`,
+          },
+        ],
+      };
+
+      responseBlocks.splice(-2);
+      responseBlocks.push(acknowledgementBlock);
+
+      await app.client.chat.update({
+        channel: body.channel.id,
+        ts: body.message.ts,
+        as_user: true,
+        blocks: responseBlocks,
+      });
+    });
 
     await app.client.chat.postMessage({
       text: "There are low-stock products in our inventory.  Check out the LooseLeaf Dominicana inventory documents in OneDrive.",
@@ -136,67 +244,4 @@ cron.schedule("*/30 * * * * *", async () => {
       ],
     });
   }
-});
-
-// --> Slack app listeners <--
-app.action("create_task", async ({ ack, body }) => {
-  await ack();
-
-  const result = await createAsanaProcurementTask();
-
-  const responseBlocks = [...body.message.blocks];
-
-  const acknowledgementBlock = {
-    type: "section",
-    fields: [
-      {
-        type: "mrkdwn",
-        text: `*Status:*\nAsana task created ✅`,
-      },
-      {
-        type: "mrkdwn",
-        text: `*User:*\n<@${body.user.id}>`,
-      },
-    ],
-  };
-
-  responseBlocks.splice(-2);
-  responseBlocks.push(acknowledgementBlock);
-
-  await app.client.chat.update({
-    channel: body.channel.id,
-    ts: body.message.ts,
-    as_user: true,
-    blocks: responseBlocks,
-  });
-});
-
-app.action("ignore_alert", async ({ ack, body }) => {
-  await ack();
-
-  const responseBlocks = [...body.message.blocks];
-
-  const acknowledgementBlock = {
-    type: "section",
-    fields: [
-      {
-        type: "mrkdwn",
-        text: `*Status:*\nAlert acknowledged but no Asana task created ❌`,
-      },
-      {
-        type: "mrkdwn",
-        text: `*User:*\n<@${body.user.id}>`,
-      },
-    ],
-  };
-
-  responseBlocks.splice(-2);
-  responseBlocks.push(acknowledgementBlock);
-
-  await app.client.chat.update({
-    channel: body.channel.id,
-    ts: body.message.ts,
-    as_user: true,
-    blocks: responseBlocks,
-  });
 });
