@@ -29,7 +29,9 @@ export async function calculateBoxesInventory() {
   if (!boxesToReorder.length) return;
 
   boxesMessage = boxesToReorder.join("\n");
-  const finalBoxes = quantityRemaining.map((q) => q.toString() + " boxes");
+  const finalBoxes = quantityRemaining.map(
+    (q) => q.toLocaleString() + " boxes"
+  );
   boxesQuantityMessage = finalBoxes.join("\n");
 
   return { boxesToReorder, boxesMessage, boxesQuantityMessage };

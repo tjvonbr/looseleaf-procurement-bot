@@ -29,7 +29,7 @@ export async function calculateFlavorsInventory() {
 
   flavorsMessage = flavorsToReorder.join("\n");
   const finalFlavors = quantityRemaining.map(
-    (q) => q.toString() + " containers"
+    (q) => q.toLocaleString() + " containers"
   );
   flavorsQuantityRemaining = finalFlavors.join("\n");
 

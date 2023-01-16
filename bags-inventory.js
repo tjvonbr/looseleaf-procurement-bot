@@ -29,7 +29,7 @@ export async function calculateBagsInventory() {
   if (!bagsToReorder.length) return;
 
   bagsMessage = bagsToReorder.join("\n");
-  const finalBags = quantityRemaining.map((q) => q.toString() + " bags");
+  const finalBags = quantityRemaining.map((q) => q.toLocaleString() + " bags");
   bagsQuantityMessage = finalBags.join("\n");
 
   return { bagsToReorder, bagsMessage, bagsQuantityMessage };
