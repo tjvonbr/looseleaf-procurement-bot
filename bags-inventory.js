@@ -16,7 +16,11 @@ export async function calculateBagsInventory() {
   let bagsMessage, bagsQuantityMessage;
 
   for (const product of productList) {
-    if (product["__EMPTY_12"] === "ORDENAR") {
+    if (
+      product["__EMPTY_12"] === "ORDENAR" &&
+      product["__EMPTY_3"] && // Initial order must not be 0...
+      product["__EMPTY_4"] // ...and incoming cannot be 0
+    ) {
       bagsToReorder.push(product["__EMPTY"]);
       quantityRemaining.push(product["__EMPTY_4"]);
     }

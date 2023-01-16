@@ -16,7 +16,11 @@ export async function calculateBoxesInventory() {
   let boxesMessage, boxesQuantityMessage;
 
   for (const product of productList) {
-    if (product["__EMPTY_12"] === "REORDER") {
+    if (
+      product["__EMPTY_12"] === "REORDER" &&
+      product["__EMPTY_3"] !== 0 && // Initial order must not be 0...
+      product["__EMPTY_4"] !== 0 // ...and incoming cannot be 0
+    ) {
       boxesToReorder.push(product["__EMPTY"]);
       quantityRemaining.push(product["__EMPTY_4"]);
     }

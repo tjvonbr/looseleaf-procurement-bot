@@ -15,7 +15,11 @@ export async function calculateFlavorsInventory() {
   let flavorsMessage, flavorsQuantityRemaining;
 
   for (const product of productList) {
-    if (product["__EMPTY_10"] === "ORDENAR") {
+    if (
+      product["__EMPTY_10"] === "ORDENAR" &&
+      product["__EMPTY_3"] !== 0 && // Initial order must not be 0...
+      product["__EMPTY_4"] !== 0 // ...and incoming cannot be 0
+    ) {
       flavorsToReorder.push(product["__EMPTY"]);
       quantityRemaining.push(product["__EMPTY_4"]);
     }
