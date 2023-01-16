@@ -11,37 +11,53 @@ const client = asana.Client.create().useAccessToken(accessToken);
 const projectGid = "1203590834169226";
 const trevorsUserGid = process.env.ASANA_USER_GID;
 
+const taskCustomFields = {
+  1203611032261860: trevorsUserGid, // Assignee
+  1203571693339765: "1203571693339766", // Task Status
+  1203571888323022: "1203591692296514", // Payment Status
+};
+
 async function createAsanaProcurementTask(flavors, bags, boxes) {
   if (flavors.length > 0) {
     try {
-      await client.tasks.createTask({
+      const flavorsTask = await client.tasks.createTask({
         projects: [projectGid],
         name: "Flavor Re-stock Test",
         // To find the enum value gids, use Asana's API explorer
         // https://developers.asana.com/explorer
-        custom_fields: {
-          1203611032261860: trevorsUserGid, // Assignee
-          1203571693339765: "1203571693339766", // Task Status
-          1203571888323022: "1203591692296514", // Payment Status
-        },
+        custom_fields: taskCustomFields,
       });
+
+      if (!flavorsTask) return;
+
+      for (const flavor of flavors) {
+        await client.tasks.createSubtaskForTask(flavorsTask.gid, {
+          name: flavor,
+          custom_fields: taskCustomFields,
+        });
+      }
     } catch (err) {
       console.log(err);
     }
 
     if (bags.length > 0) {
       try {
-        await client.tasks.createTask({
+        const bagsTask = await client.tasks.createTask({
           projects: [projectGid],
           name: "Bags Re-stock Test",
           // To find the enum value gids, use Asana's API explorer
           // https://developers.asana.com/explorer
-          custom_fields: {
-            1203611032261860: trevorsUserGid, // Assignee
-            1203571693339765: "1203571693339766", // Task Status
-            1203571888323022: "1203591692296514", // Payment Status
-          },
+          custom_fields: taskCustomFields,
         });
+
+        if (!bagsTask) return;
+
+        for (const bag of bags) {
+          await client.tasks.createSubtaskForTask(bagsTask.gid, {
+            name: bag,
+            custom_fields: taskCustomFields,
+          });
+        }
       } catch (err) {
         console.log(err);
       }
@@ -49,17 +65,22 @@ async function createAsanaProcurementTask(flavors, bags, boxes) {
 
     if (boxes.length > 0) {
       try {
-        await client.tasks.createTask({
+        const boxesTask = await client.tasks.createTask({
           projects: [projectGid],
           name: "Box Re-stock Test",
           // To find the enum value gids, use Asana's API explorer
           // https://developers.asana.com/explorer
-          custom_fields: {
-            1203611032261860: trevorsUserGid, // Assignee
-            1203571693339765: "1203571693339766", // Task Status
-            1203571888323022: "1203591692296514", // Payment Status
-          },
+          custom_fields: taskCustomFields,
         });
+
+        if (!boxesTask) return;
+
+        for (const box of boxes) {
+          await client.tasks.createSubtaskForTask(boxesTask.gid, {
+            name: box,
+            custom_fields: taskCustomFields,
+          });
+        }
       } catch (err) {
         console.log(err);
       }
