@@ -28,5 +28,5 @@ export async function calculateBoxesInventory() {
   const finalBoxes = quantityRemaining.map((q) => q.toString() + " boxes");
   boxesQuantityMessage = finalBoxes.join("\n");
 
-  return { boxesMessage, boxesQuantityMessage };
+  return { boxesToReorder, boxesMessage, boxesQuantityMessage };
 }

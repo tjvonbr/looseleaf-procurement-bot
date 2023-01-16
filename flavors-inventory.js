@@ -29,5 +29,5 @@ export async function calculateFlavorsInventory() {
   );
   flavorsQuantityRemaining = finalFlavors.join("\n");
 
-  return { flavorsMessage, flavorsQuantityRemaining };
+  return { flavorsToReorder, flavorsMessage, flavorsQuantityRemaining };
 }
