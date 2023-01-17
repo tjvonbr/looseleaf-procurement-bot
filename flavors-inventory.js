@@ -12,7 +12,7 @@ export async function calculateFlavorsInventory() {
   const flavorsToReorder = [];
   const quantityRemaining = [];
 
-  let flavorsMessage, flavorsQuantityRemaining;
+  let flavorsQuantityRemaining;
 
   for (const product of productList) {
     if (
@@ -27,11 +27,10 @@ export async function calculateFlavorsInventory() {
 
   if (!flavorsToReorder.length) return;
 
-  flavorsMessage = flavorsToReorder.join("\n");
   const finalFlavors = quantityRemaining.map(
     (q) => q.toLocaleString() + " containers"
   );
   flavorsQuantityRemaining = finalFlavors.join("\n");
 
-  return { flavorsToReorder, flavorsMessage, flavorsQuantityRemaining };
+  return { flavorsToReorder, flavorsQuantityRemaining };
 }

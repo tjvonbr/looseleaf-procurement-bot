@@ -13,7 +13,7 @@ export async function calculateBagsInventory() {
   const bagsToReorder = [];
   const quantityRemaining = [];
 
-  let bagsMessage, bagsQuantityMessage;
+  let bagsQuantityMessage;
 
   for (const product of productList) {
     if (
@@ -28,9 +28,8 @@ export async function calculateBagsInventory() {
 
   if (!bagsToReorder.length) return;
 
-  bagsMessage = bagsToReorder.join("\n");
   const finalBags = quantityRemaining.map((q) => q.toLocaleString() + " bags");
   bagsQuantityMessage = finalBags.join("\n");
 
-  return { bagsToReorder, bagsMessage, bagsQuantityMessage };
+  return { bagsToReorder, bagsQuantityMessage };
 }

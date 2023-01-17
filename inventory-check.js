@@ -92,11 +92,11 @@ cron.schedule("*/30 * * * * *", async () => {
   // */30 * * * * *
   // 0 9 * * 5
   try {
-    const { bagsToReorder, bagsMessage, bagsQuantityMessage } =
+    const { bagsToReorder, bagsQuantityMessage } =
       await calculateBagsInventory();
-    const { boxesToReorder, boxesMessage, boxesQuantityMessage } =
+    const { boxesToReorder, boxesQuantityMessage } =
       await calculateBoxesInventory();
-    const { flavorsToReorder, flavorsMessage, flavorsQuantityRemaining } =
+    const { flavorsToReorder, flavorsQuantityRemaining } =
       await calculateFlavorsInventory();
 
     // --> Slack app listeners <--
@@ -182,7 +182,7 @@ cron.schedule("*/30 * * * * *", async () => {
           fields: [
             {
               type: "mrkdwn",
-              text: `*Flavors:*\n${flavorsMessage}`,
+              text: `*Flavors:*\n${flavorsToReorder.join("\n")}`,
             },
             {
               type: "mrkdwn",
@@ -195,7 +195,7 @@ cron.schedule("*/30 * * * * *", async () => {
           fields: [
             {
               type: "mrkdwn",
-              text: `*Boxes:*\n${boxesMessage}`,
+              text: `*Boxes:*\n${boxesToReorder.join("\n")}`,
             },
             {
               type: "mrkdwn",
@@ -208,7 +208,7 @@ cron.schedule("*/30 * * * * *", async () => {
           fields: [
             {
               type: "mrkdwn",
-              text: `*Bags:*\n${bagsMessage}`,
+              text: `*Bags:*\n${bagsToReorder.join("\n")}`,
             },
             {
               type: "mrkdwn",
