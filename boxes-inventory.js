@@ -13,7 +13,7 @@ export async function calculateBoxesInventory() {
   const boxesToReorder = [];
   const quantityRemaining = [];
 
-  let boxesMessage, boxesQuantityMessage;
+  let boxesQuantityMessage;
 
   for (const product of productList) {
     if (
@@ -28,11 +28,10 @@ export async function calculateBoxesInventory() {
 
   if (!boxesToReorder.length) return;
 
-  boxesMessage = boxesToReorder.join("\n");
   const finalBoxes = quantityRemaining.map(
     (q) => q.toLocaleString() + " boxes"
   );
   boxesQuantityMessage = finalBoxes.join("\n");
 
-  return { boxesToReorder, boxesMessage, boxesQuantityMessage };
+  return { boxesToReorder, boxesQuantityMessage };
 }
