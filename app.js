@@ -1,9 +1,7 @@
-import pkg from "@slack/bolt";
-const { App } = pkg;
-import sppullPkg from "sppull";
-const { SPPull } = sppullPkg;
-import * as dotenv from "dotenv";
-import * as fs from "fs";
+const { App } = require("@slack/bolt");
+const dotenv = require("dotenv");
+const cron = require("node-cron");
+const { calculateInventory } = require("./inventory-check");
 
 dotenv.config();
 
@@ -15,39 +13,13 @@ const app = new App({
   appToken: process.env.SLACK_APP_TOKEN,
 });
 
-const siteUrl =
-  "https://looseleaf420.sharepoint.com/sites/LooseLeafDominicanaGlobalHub";
-
-const context = {
-  siteUrl,
-  creds: {
-    username: process.env.MICROSOFT_USERNAME,
-    password: process.env.MICROSOFT_PASSWORD,
-    online: true,
-  },
-};
-
-const options = {
-  spRootFolder: "Inventory",
-  dlRootFolder: "./downloaded-inventory",
-};
-
-// delete stale files to make room for updated ones
-fs.rmSync("./downloaded-inventory", { recursive: true, force: true });
-
-await SPPull.download(context, options)
-  .then((downloadResults) => {
-    console.log("Files are downloaded");
-  })
-  .catch((err) => {
-    console.log("Core error has happened", err);
-  });
-
 (async () => {
   const port = 3000;
 
   await app.start(process.env.PORT || port);
   console.log(`⚡️ Slack Bolt app is running on port ${port}!`);
+
+  cron.schedule("0 9 * * 5", calculateInventory);
 })();
 
-export default app;
+module.exports = { app };

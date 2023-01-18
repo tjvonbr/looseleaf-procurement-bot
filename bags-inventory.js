@@ -1,7 +1,6 @@
-import pkg from "xlsx";
-const { readFile, utils } = pkg;
+const { readFile, utils } = "xlsx";
 
-export async function calculateBagsInventory() {
+async function calculateBagsInventory() {
   const bagsWorkbook = await readFile(
     "./downloaded-inventory/Bolsas de Empaque.xlsm"
   );
@@ -33,3 +32,5 @@ export async function calculateBagsInventory() {
 
   return { bagsToReorder, bagsQuantityMessage };
 }
+
+module.exports = { calculateBagsInventory };
