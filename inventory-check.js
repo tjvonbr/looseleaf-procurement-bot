@@ -1,23 +1,23 @@
-import app from "./app.js";
-import * as cron from "node-cron";
-import { calculateBagsInventory } from "./bags-inventory.js";
-import { calculateBoxesInventory } from "./boxes-inventory.js";
-import { calculateFlavorsInventory } from "./flavors-inventory.js";
-import asana from "asana";
-
-const accessToken = process.env.ASANA_ACCESS_TOKEN;
-const client = asana.Client.create().useAccessToken(accessToken);
-
-const projectGid = "1203590834169226";
-const trevorsUserGid = process.env.ASANA_USER_GID;
-
-const taskCustomFields = {
-  1203611032261860: trevorsUserGid, // Assignee
-  1203571693339765: "1203571693339766", // Task Status
-  1203571888323022: "1203591692296514", // Payment Status
-};
+const { app } = require("./app");
+const { calculateBagsInventory } = require("./bags-inventory.js");
+const { calculateBoxesInventory } = require("./boxes-inventory.js");
+const { calculateFlavorsInventory } = require("./flavors-inventory.js");
+const asana = require("asana");
+const { SPPull } = require("sppull");
 
 async function createAsanaProcurementTask(flavors, bags, boxes) {
+  const accessToken = process.env.ASANA_ACCESS_TOKEN;
+  const client = asana.Client.create().useAccessToken(accessToken);
+
+  const projectGid = "1203590834169226";
+  const trevorsUserGid = process.env.ASANA_USER_GID;
+
+  const taskCustomFields = {
+    1203611032261860: trevorsUserGid, // Assignee
+    1203571693339765: "1203571693339766", // Task Status
+    1203571888323022: "1203591692296514", // Payment Status
+  };
+
   if (flavors.length > 0) {
     try {
       const flavorsTask = await client.tasks.createTask({
@@ -88,10 +88,34 @@ async function createAsanaProcurementTask(flavors, bags, boxes) {
   }
 }
 
-cron.schedule("*/30 * * * * *", async () => {
-  // */30 * * * * *
-  // 0 9 * * 5
+async function calculateInventory() {
+  // SharePoint context
+  const siteUrl =
+    "https://looseleaf420.sharepoint.com/sites/LooseLeafDominicanaGlobalHub";
+
+  const context = {
+    siteUrl,
+    creds: {
+      username: process.env.MICROSOFT_USERNAME,
+      password: process.env.MICROSOFT_PASSWORD,
+      online: true,
+    },
+  };
+
+  const options = {
+    spRootFolder: "Inventory",
+    dlRootFolder: "./downloaded-inventory",
+  };
+
   try {
+    await SPPull.download(context, options)
+      .then(() => {
+        console.log("Files are downloaded");
+      })
+      .catch((err) => {
+        console.log("Core error has happened", err);
+      });
+
     const { bagsToReorder, bagsQuantityMessage } =
       await calculateBagsInventory();
     const { boxesToReorder, boxesQuantityMessage } =
@@ -265,4 +289,6 @@ cron.schedule("*/30 * * * * *", async () => {
       ],
     });
   }
-});
+}
+
+module.exports = { calculateInventory };
