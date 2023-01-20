@@ -1,10 +1,12 @@
-const { App } = require("@slack/bolt");
 const dotenv = require("dotenv");
+const { App } = require("@slack/bolt");
 const cron = require("node-cron");
 const { calculateInventory } = require("./inventory-check");
+const { updateAsanaInventory } = require("./asana-inventory");
 
 dotenv.config();
 
+console.log(process.env.SLACK_APP_TOKEN);
 // Initialize Slack app
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -19,7 +21,9 @@ const app = new App({
   await app.start(process.env.PORT || port);
   console.log(`⚡️ Slack Bolt app is running on port ${port}!`);
 
-  cron.schedule("0 9 * * 5", calculateInventory);
+  // List of cron jobs
+  cron.schedule("0 9 * * 5", calculateInventory); // Runs every Friday at 9am
+  // cron.schedule("*/10 * * * * *", updateAsanaInventory); //  Runs every 5 minutes
 })();
 
 module.exports = { app };

@@ -1,4 +1,4 @@
-const { readFile, utils } = "xlsx";
+const { readFile, utils } = require("xlsx");
 
 async function calculateFlavorsInventory() {
   const flavorsWorkbook = await readFile("./downloaded-inventory/Flavors.xlsm");
