@@ -3,12 +3,9 @@ const { flavorMap } = require("./lib/asana");
 const { SPPull } = require("sppull");
 const { readFile, utils } = require("xlsx");
 
-const projectGid = "1203590834169226";
-const sectionGid = "1203591334196884";
-
 // const accessToken = process.env.ASANA_ACCESS_TOKEN;
 const client = asana.Client.create().useAccessToken(
-  "1/1203564429677495:4d2dd442d2838cfa19071f1602c33bfe"
+  process.env.ASANA_ACCESS_TOKEN
 );
 
 const siteUrl =

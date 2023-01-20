@@ -1,12 +1,9 @@
-const dotenv = require("dotenv");
+require("dotenv").config();
 const { App } = require("@slack/bolt");
 const cron = require("node-cron");
 const { calculateInventory } = require("./inventory-check");
 const { updateAsanaInventory } = require("./asana-inventory");
 
-dotenv.config();
-
-console.log(process.env.SLACK_APP_TOKEN);
 // Initialize Slack app
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
